@@ -64,8 +64,7 @@ class SuppressCmd(AbiSubcommand):
             assert args.header_path is not None, "Explicit binary requires explicit path to header"
             header = Path(args.header_path)
         else:
-            env = require_active_env("abi suppress")
-            installed_spec = find_matching_specs(env=env, specs=parse_specs(args.spec))[0]
+            installed_spec = find_matching_specs(env=None, specs=parse_specs(args.spec))[0]
             binaries = libs_for_spec(installed_spec)
             assert args.header_name is not None, "Explicit spec requires name of header file"
             header = [

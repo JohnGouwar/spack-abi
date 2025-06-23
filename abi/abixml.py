@@ -369,8 +369,7 @@ class XmlCmd(AbiSubcommand):
 
     @classmethod
     def cmd(cls, args):
-        env = require_active_env("abi xml")
-        specs = find_matching_specs(env=env, specs=parse_specs(args.spec))
+        specs = find_matching_specs(env=None, specs=parse_specs(args.spec))
         assert (len(specs) == 1), "Cannot analyze ABI for more than one spec at a time"
         spec = specs[0]
         spec_libs = libs_for_spec(spec)

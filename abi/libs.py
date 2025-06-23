@@ -15,8 +15,7 @@ class LibsCmd(AbiSubcommand):
 
     @classmethod
     def cmd(cls, args):
-        env=require_active_env("abi libs")
-        spec = find_matching_specs(env=env, specs=parse_specs(args.spec))[0]
+        spec = find_matching_specs(env=None, specs=parse_specs(args.spec))[0]
         headers = headers_for_spec(spec)
         libs = libs_for_spec(spec)
         indent = " " * 2

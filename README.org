@@ -1,8 +1,8 @@
 #+TITLE: spack-abi: Analyzing Spack-built ABI artifacts
 #+AUTHOR: John Gouwar
 * DISCLAIMER
-/*Work on this extension is active research and I make no guarantees of its*/
-/*behavior or functionality*/
+/Work on this extension is active research and I make no guarantees of its/
+/behavior or functionality/
 * Purpose
 This Spack extension serves as a wrapper over [[https://sourceware.org/libabigail/][libabigail]] that makes it more
 ergonomic to analyze the ABI artifacts of Spack-built software. The goal is to

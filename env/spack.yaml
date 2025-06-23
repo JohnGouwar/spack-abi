@@ -1,0 +1,15 @@
+spack:
+  specs:
+    - libabigail@2.7
+    - py-tree-sitter@0.25.0
+    - py-tree-sitter-c@0.24.1
+    - "python@3.10:"
+  view: true
+  concretizer:
+    unify: true
+  config:
+    extensions:
+      - ../
+  env_vars:
+    set:
+      SPACK_PYTHON: $env/.spack-env/view/bin/python3

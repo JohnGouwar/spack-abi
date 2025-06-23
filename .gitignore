@@ -1,5 +1,5 @@
-env/spack.lock
-env/.spack-env
+spack.lock
+.spack-env/
 pyrightconfig.json
 \#*\# 
 

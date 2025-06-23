@@ -1,0 +1,123 @@
+#+TITLE: spack-abi: Analyzing Spack-built ABI artifacts
+#+AUTHOR: John Gouwar
+* DISCLAIMER
+/*Work on this extension is active research and I make no guarantees of its*/
+/*behavior or functionality*/
+* Purpose
+This Spack extension serves as a wrapper over [[https://sourceware.org/libabigail/][libabigail]] that makes it more
+ergonomic to analyze the ABI artifacts of Spack-built software. The goal is to
+give package developers the ability more easily model the ABI of their package
+using the ~can_splice~ directive (see [[https://spack.readthedocs.io/en/latest/packaging_guide.html#specifying-abi-compatibility][the relevant section in the "Packaging
+Guide"]] for more details on _how_ ~can_splice~ interacts with the Spack
+concretizer).
+* Spack Environment
+To run the various tools in this extension, I have provided the following
+minimal Spack environment at ~env/~:
+#+begin_src yaml :tangle env/spack.yaml
+  spack:
+    specs:
+      - libabigail@2.7
+      - py-tree-sitter@0.25.0
+      - py-tree-sitter-c@0.24.1
+      - "python@3.10:"
+    view: true
+    concretizer:
+      unify: true
+    config:
+      extensions:
+        - ../
+    env_vars:
+      set:
+        SPACK_PYTHON: $env/.spack-env/view/bin/python3
+#+end_src
+Activating this environment will provide all of the necessary dependencies for
+running this extension, make Spack aware of the extension, and set Spack's
+Python interpreter to one with the necessary dependencies installed. Once you
+deactivate this shell, you will need to "re-enable" your shell with
+~/path/to/spack/share/spack/setup-env.sh~, since ~SPACK_PYTHON~ is changed. 
+** Treesitter packages
+This extension relies on two new Spack packages, ~py-tree-sitter~ and
+~py-tree-sitter-c~, that have not yet been merged into ~spack/spack-packages~,
+once [[https://github.com/spack/spack-packages/pull/336][this PR]] is merged they will be available from ~spack/spack-packages~. 
+* Tools
+All tools have a ~--help~ option to get a generic help message. When providing a
+spec argument to the tools, the spec should be locally installed in your Spack
+instance and specific enough to resolve to a single spec. For these tools to be
+effective, specs should be compiled with DWARF debug information present
+(/i.e./, ~... -g~).
+** spack abi libs
+This displays the headers and libraries associated with a particular spec that
+can be used as arguments to the other tools.
+*** Invocation
+#+begin_example
+spack abi libs <spec>
+#+end_example
+** spack abi xml
+This wraps ~libabigail~'s [[https://www.sourceware.org/libabigail/manual/abidw.html][~abidw~]] for use with Spack specs.
+*** Invocation
+#+begin_example
+spack abi xml [options] <spec>
+#+end_example
+*** Options
+**** ~--extra-args~
+Pass extra args directly through to ~abidw~, use ~--extra-args="ARGS"~ to ensure
+they are parsed correctly.
+**** ~--show-cmd~
+Print the underlying ~abidw~ command executed by the tool
+**** ~--output-format~
+Determines the output format of the command from a choice of ~xml~, ~names~, or
+~ir~. 
+***** xml (default)
+The ABIXML returned by ~abidw~
+***** names
+A newline separated list of names extracted from the ABIXML
+***** ir
+ABIXML is parsed and used in the ~suppress~ and ~diff~ commands to determine a
+library's public interface, this shows the parsed IR for debugging purposes.  
+**** ~--output-file~
+File where output will be written, if absent output is written to stdout.
+**** ~--suppression-file~
+The path to a ~libabigail~ [[https://sourceware.org/libabigail/manual/suppression-specifications.html][suppression specification]] for symbols to be
+suppressed by ~abidw~. See [[https://sourceware.org/bugzilla/show_bug.cgi?id=33090][this bug report]] for information on how suppression
+interacts with ~abidw~. These can also be generated for a library's public
+interface using ~spack abi suppress~.
+** spack abi suppress
+This computes an ~libabigail~ [[https://sourceware.org/libabigail/manual/suppression-specifications.html][suppression specification]] from either a locally
+installed spec 
+*** Invocation
+#+begin_example
+spack abi suppress [options] <--header-name=NAME|--header-path=PATH> <spec|sofile>
+#+end_example
+*** Arguments
+Either a locally installed spec and the name of the public interface header file
+(including the ~.h~), or the absolute path to a ~.so~ file and an absolute path
+to a ~.h~ file defining the public interface. 
+*** Options
+**** ~--header-name/--header-path~
+These arguments describe where to find the public interface for the
+library. Provide the a name to the ~--header-name~ argument when working with
+specs and an absolute path to the ~--header-path~ argument when working with
+shared object files. 
+**** ~--output-file~
+File where output suppression information will be written, if absent output is
+written to stdout.
+** spack abi diff
+This wraps ~libabigail~'s [[https://sourceware.org/libabigail/manual/abidiff.html][~abidiff~]] for use with Spack specs.
+*** Invocation
+#+begin_example
+spack abi diff [options] <spec1> <spec2>
+#+end_example
+*** Options
+**** ~--header1/--header2~
+Names of the header files to restrict to the public interface for the first and
+second spec, respectively.
+**** ~--suppr1/--suppr2~
+Handwritten suppression files to restrict the analyzed symbols between the two
+libraries. This argument is mutally exclusive with ~--header1/2~ for the same
+spec; however, you could use ~--header1~ with ~--suppr2~ and vice versa (/i.e./,
+constraining different specs)
+**** ~--extra-args~
+Pass extra args directly through to ~abidiff~, use ~--extra-args="ARGS"~ to ensure
+they are parsed correctly.
+**** ~--show-cmd~
+Print the underlying ~abidiff~ command executed by the tool

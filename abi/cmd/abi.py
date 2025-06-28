@@ -8,12 +8,14 @@ from spack.extensions.abi.diff import DiffCmd
 from spack.extensions.abi.suppress import SuppressCmd
 from spack.extensions.abi.libs import LibsCmd
 from spack.extensions.abi.abixml import XmlCmd
+from spack.extensions.abi.diff_product import DiffProductCmd
 try:
     from abi.common import AbiSubcommand
     from abi.diff import DiffCmd
     from abi.suppress import SuppressCmd
     from abi.libs import LibsCmd
     from abi.abixml import XmlCmd
+    from abi.diff_product import DiffProductCmd
 except:
     pass
 
@@ -27,6 +29,7 @@ CMDS = [
     ("suppress", SuppressCmd()),
     ("libs", LibsCmd()),
     ("xml", XmlCmd()),
+    ("diff-product", DiffProductCmd())
 ]
 subcmd_funcs = {}
 

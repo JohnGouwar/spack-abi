@@ -6,16 +6,14 @@ from argparse import ArgumentParser, REMAINDER
 from pathlib import Path
 from typing import List
 #########
-from spack.extensions.abi.common import AbiSubcommand, libs_for_spec, headers_for_spec
-from spack.extensions.abi.abixml import ABI
-from spack.extensions.abi.parse_headers import parse_header
-
 try: # LSP can identify symbols
+    from spack.extensions.abi.common import AbiSubcommand, libs_for_spec, headers_for_spec
+    from spack.extensions.abi.abixml import ABI
+    from spack.extensions.abi.parse_headers import parse_header
+except:
     from abi.abixml import ABI
     from abi.common import AbiSubcommand, libs_for_spec, headers_for_spec
     from abi.parse_headers import parse_header
-except:
-    pass
 
 def suppression_for_binaries_from_header(binaries: List[Path], header: Path) -> str:
     abi, _ = ABI.from_binaries(binaries)

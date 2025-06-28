@@ -10,14 +10,12 @@ from typing import Self, List, Union, Tuple, Optional
 from pprint import pformat
 from spack.cmd import parse_specs, require_active_env
 from spack.cmd.common import arguments
-from spack.cmd.uninstall import find_matching_specs
-from spack.extensions.abi.abigail import abidw
-from spack.extensions.abi.common import AbiSubcommand, regex_for_filename, libs_for_spec
 try:
-    from abi.common import AbiSubcommand, regex_for_filename, libs_for_spec
-    from abi.abigail import abidw
+    from spack.extensions.abi.abigail import abidw
+    from spack.extensions.abi.common import AbiSubcommand, find_matching_specs, libs_for_spec
 except:
-    pass
+    from abi.common import AbiSubcommand, find_matching_specs, libs_for_spec
+    from abi.abigail import abidw
 
 def _get_or_fail(xelt: ET.Element, attr: str) -> str:
     output = xelt.get(attr)

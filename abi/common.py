@@ -69,7 +69,7 @@ def find_matching_specs(
                 "indent": 4
             }
             print(f"{spec} matches multiple packages", file=sys.stderr)
-            display_specs(matching, output=sys.stderr, **display_args)
+            display_specs(matching, **display_args)
             print(f"Try specifying the desired spec by its hash", file=sys.stderr)
             exit(1)
         if len(matching) == 0:

@@ -1,27 +1,27 @@
 from argparse import REMAINDER, ArgumentParser
 from pathlib import Path
+import subprocess
 from tempfile import NamedTemporaryFile
 from warnings import showwarning
 ########
 from spack.cmd import require_active_env, parse_specs
 from spack.spec import Spec
 ########
-from typing import Optional, List
-from spack.extensions.abi.common import (
-    AbiSubcommand,
-    libs_for_spec,
-    headers_for_spec,
-    find_matching_specs
-)
-from spack.extensions.abi.abigail import abidiff, print_cmd, DiffExitCode
-from spack.extensions.abi.suppress import suppression_for_binaries_from_header
+from typing import Optional, List, Tuple
+try:
+    from spack.extensions.abi.common import (
+        AbiSubcommand,
+        libs_for_spec,
+        headers_for_spec,
+        find_matching_specs
+    )
+    from spack.extensions.abi.abigail import abidiff, print_cmd, DiffExitCode
+    from spack.extensions.abi.suppress import suppression_for_binaries_from_header
 
-try: # LSP can identify symbols
+except: # LSP can identify symbols
     from abi.common import AbiSubcommand, libs_for_spec, headers_for_spec, find_matching_specs
     from abi.suppress import suppression_for_binaries_from_header
     from abi.abigail import abidiff, print_cmd, DiffExitCode
-except:
-    pass
 
 def diff_specs(
         spec1: Spec,
@@ -32,7 +32,9 @@ def diff_specs(
         suppr2: Optional[str] = None,
         show_cmd: bool = False,
         extra_args: List[str] = [],
-):
+) -> Tuple[subprocess.CompletedProcess, List[str]]:
+    """
+    """
     spec1_libs = libs_for_spec(spec1)
     spec2_libs = libs_for_spec(spec2)
     if header1:
@@ -66,14 +68,7 @@ def diff_specs(
             show_cmd=show_cmd,
             extra_args=extra_args
         )
-        if result.returncode & DiffExitCode.USAGE_ERROR == 1:
-            print("There was an error in running `abidiff`, below is the underlying command:")
-            print_cmd(args)
-            print(f"STDERR: {result.stderr}")
-        else:
-            print(result.stdout)
-            print(result.stderr)
-    
+        return result, args
 
 class DiffCmd(AbiSubcommand):
     @classmethod
@@ -126,7 +121,7 @@ class DiffCmd(AbiSubcommand):
             extra_args = args.extra_args.split()
         else:
             extra_args = []
-        diff_specs(
+        result, args = diff_specs(
             spec1,
             spec2,
             args.header1,
@@ -137,6 +132,14 @@ class DiffCmd(AbiSubcommand):
             extra_args=extra_args
         )
 
+        if result.returncode & DiffExitCode.USAGE_ERROR == 1:
+            print("There was an error in running `abidiff`, below is the underlying command:")
+            print_cmd(args)
+            print(f"STDERR: {result.stderr}")
+        else:
+            print(result.stdout)
+            print(result.stderr)
+    
     @classmethod
     def description(cls) -> str:
         lines = [

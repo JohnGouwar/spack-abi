@@ -79,7 +79,7 @@ def abidw(
         show_cmd: bool = False,
         extra_args : List[str] = [], 
 ):
-    bin, *added_bins = bins
+    binary, *added_bins = bins
     added_bins_arg, added_dirs = _split_bins_and_dirs(added_bins)
     cmd = _which_ensure("abidw")
     args = [cmd] + extra_args
@@ -90,7 +90,7 @@ def abidw(
         args.append(d)
     if suppression_file:
         args += ["--suppressions", str(suppression_file.absolute())]
-    args.append(str(bin))
+    args.append(str(binary))
     if show_cmd:
         print_cmd(args)
     return run(args, stdout=PIPE, stderr=PIPE, text=True)

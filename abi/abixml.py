@@ -295,7 +295,7 @@ class ABI:
             extra_args: List[str] = []
     ) -> Tuple[Self, str]:
         result = abidw(
-            bin,
+            bins,
             suppression_file=suppression_file,
             show_cmd=show_cmd,
             extra_args=extra_args

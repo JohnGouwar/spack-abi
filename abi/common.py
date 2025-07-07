@@ -6,9 +6,11 @@ from spack.cmd import display_specs
 import sys
 import spack.environment as ev
 import spack.store
-from typing import List, Self, Optional
+from typing import List, Self, Optional, Tuple, TypeVar
 from pathlib import Path
 from argparse import ArgumentParser
+
+
 
 class AbiSubcommand(ABC):
     @classmethod
@@ -26,6 +28,19 @@ class AbiSubcommand(ABC):
     def __new__(cls) -> Self:
         return super().__new__(cls)
 
+T = TypeVar("T")
+
+def cross_product_self(lst: List[T]) -> List[Tuple[T, T]]:
+    """
+    Computes the cross product of a list with itself, skipping elements
+    which are at the same index (so as not to rely on == for equality)
+    """
+    return [
+        (elt1, elt2)
+        for i, elt1 in enumerate(lst)
+        for j, elt2 in enumerate(lst)
+        if i != j
+    ]
 
 def _spec_to_build_interface(spec: Spec):
     if not spec.installed:

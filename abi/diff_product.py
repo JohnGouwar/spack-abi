@@ -1,10 +1,10 @@
 try:
     from spack.extensions.abi.abigail import DiffExitCode, print_cmd
-    from spack.extensions.abi.common import AbiSubcommand
+    from spack.extensions.abi.common import AbiSubcommand, cross_product_self
     from spack.extensions.abi.diff import diff_specs
 except:
     from abi.abigail import DiffExitCode, print_cmd
-    from abi.common import AbiSubcommand
+    from abi.common import AbiSubcommand, cross_product_self
     from abi.diff import diff_specs
 from argparse import ArgumentParser
 from pathlib import Path
@@ -34,18 +34,7 @@ def return_code_to_diff_type(rc: int) -> AbiDiffType:
     else: # There was a usage error
         return AbiDiffType.ERROR
 
-    
-def cross_product_self(lst: List[T]) -> List[Tuple[T, T]]:
-    """
-    Computes the cross product of a list with itself, skipping elements
-    which are at the same index (so as not to rely on == for equality)
-    """
-    return [
-        (elt1, elt2)
-        for i, elt1 in enumerate(lst)
-        for j, elt2 in enumerate(lst)
-        if i != j
-    ]
+   
 
 class DiffProductCmd(AbiSubcommand):
     @classmethod
